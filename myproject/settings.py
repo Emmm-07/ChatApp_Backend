@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'channels',
     'chat',
+    'corsheaders',
 
 ]
 
@@ -64,7 +65,8 @@ CHANNEL_LAYERS = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Example: Frontend URL
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "https://em-chat-three.vercel.app"
 ]
 
 #JWT Authentication
