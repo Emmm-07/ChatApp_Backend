@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&-xc8(x%du%ocxm-akdhe-sdr6a-$bs@ab!q(r4ktlw6-r^z-t'
+SECRET_KEY = os.getenv('DJ_SECRET_KEY','fallback-secret-if-env-not-set')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -50,15 +54,14 @@ INSTALLED_APPS = [
 #Configure asgi application
 ASGI_APPLICATION = 'myproject.asgi.application'
 
-
+REDIS_URI = os.getenv('REDIS_URI','fallback-secret-if-env-not-set')
 #Configure Redis Channel Layer
 CHANNEL_LAYERS = {
     'default':{
         'BACKEND':'channels_redis.core.RedisChannelLayer',
         'CONFIG':{
             # 'hosts':[('127.0.0.1',6379)],    #Default Redis address
-            # 'hosts':[('rediss://red-ctbf27a3esus739ik4gg:n9Sbpqb8yYD0nQdRlSLnbUXewTVRbTeR@oregon-redis.render.com:6379')], #Global address, deployed with render.com
-            'hosts':[('redis://default:pskUFApUwlZvccwrfQZKBiBRSFjDKIhL@monorail.proxy.rlwy.net:14034')], #Global address, deployed with railway.com
+            'hosts':[(REDIS_URI)], #Global address, deployed with railway.com
         }
     }
 }
