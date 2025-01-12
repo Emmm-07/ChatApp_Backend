@@ -69,8 +69,13 @@ CHANNEL_LAYERS = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Example: Frontend URL
+    "http://127.0.0.1:3000"
     "http://localhost:5173",
-    "https://em-chat-three.vercel.app"
+    "http://127.0.0.1:5173",
+    "https://em-chat-three.vercel.app",
+    "http://em-chat-three.vercel.app",
+    "https://em-chat-server.onrender.com"
+
 ]
 
 #JWT Authentication
