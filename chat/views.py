@@ -7,18 +7,31 @@ from django.contrib.auth.models import User
 
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes, action
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
+from django.db.models import Q              # for more complex queries
 
 # Create your views here.
 class MessageViewset(viewsets.ModelViewSet):
     queryset =  Messages.objects.all().order_by('-timestamp')
     serializer_class = MessageSerializer  
     permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['GET'], url_path='personal_message')
+    def personal_message(self, request):
+        sender = request.user
+        # recipient = request.data['recipient']
+        recipient = request.query_params.get('recipient')
+
+        message = Messages.objects.filter(
+            (Q(sender=sender)&Q(recipient=recipient)) |  (Q(sender=recipient)&Q(recipient=sender))
+        ).order_by('timestamp')
+       
+        serializer = self.get_serializer(message, many=True)
+        return  Response(serializer.data)
 
 @api_view(['POST'])
 def login(request):

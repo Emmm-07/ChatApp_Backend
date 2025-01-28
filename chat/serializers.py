@@ -3,9 +3,10 @@ from .models import Messages
 from django.contrib.auth.models import User
 
 class MessageSerializer(serializers.ModelSerializer):
+    sender_fname = serializers.CharField(source='sender.first_name',read_only=True)
     class Meta:
         model = Messages
-        fields = ["id", "content", "timestamp"]
+        fields = ["id", "message", "timestamp","recipient", "sender_fname"]
         
 
 class UserSerializer(serializers.ModelSerializer):

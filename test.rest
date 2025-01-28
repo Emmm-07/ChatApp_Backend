@@ -10,3 +10,11 @@ POST http://127.0.0.1:8000/login
 Content-Type: application/json
 
 { "username":"marc","password":"marc123" }
+
+###
+
+GET http://127.0.0.1:8000/api/messages/personal_message
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM2ODY3ODE2LCJpYXQiOjE3MzY2OTUwMTYsImp0aSI6IjM1MDg5YmJlNzFiMTQ1MWZhM2MwOTJmYmU3MDNiMDRjIiwidXNlcl9pZCI6Mn0.VFhOl5RpSLPLv5maKG0JADVQ-0MH7XbqzDxqvOWWxsY
+
+{"recipient":"1"}
