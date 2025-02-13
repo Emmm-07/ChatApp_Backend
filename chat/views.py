@@ -25,13 +25,19 @@ class MessageViewset(viewsets.ModelViewSet):
         sender = request.user
         # recipient = request.data['recipient']
         recipient = request.query_params.get('recipient')
-
+        # take only the messages between  the sender and recipient
         message = Messages.objects.filter(
             (Q(sender=sender)&Q(recipient=recipient)) |  (Q(sender=recipient)&Q(recipient=sender))
         ).order_by('timestamp')
        
         serializer = self.get_serializer(message, many=True)
-        return  Response(serializer.data)
+        serialized_data = serializer.data
+        lastMessage = serialized_data[len(serialized_data)-1]['message']
+        # print("lastMessage: ",lastMessage)
+        return  Response({
+            "messages": serialized_data,
+            "lastMessage":{ recipient:lastMessage }
+        })
 
 @api_view(['POST'])
 def login(request):
