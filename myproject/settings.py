@@ -67,15 +67,32 @@ CHANNEL_LAYERS = {
     }
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Example: Frontend URL
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://em-chat-three.vercel.app",
-    "http://em-chat-three.vercel.app",
-    "https://em-chat-server.onrender.com"
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",  # Example: Frontend URL
+#     "http://127.0.0.1:3000",
+#     "http://localhost:5173",
+#     "http://127.0.0.1:5173",
+#     "https://em-chat-three.vercel.app",
+#     "http://em-chat-three.vercel.app",
+#     "https://em-chat-server.onrender.com"
+# ]
 
+#  If you want to allow all origins (not recommended for production)
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'Accept',
+    'Authorization',
+    'Content-Type',
 ]
 
 #JWT Authentication
