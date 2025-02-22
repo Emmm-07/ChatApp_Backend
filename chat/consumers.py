@@ -7,26 +7,9 @@ from django.contrib.auth.models import User
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import AnonymousUser
 from asgiref.sync import sync_to_async
-
+from urllib.parse import parse_qs
 class ChatConsumer(AsyncWebsocketConsumer):
    
-    # async def connect(self):
-       
-    #     self.room_name = 'chat_room'
-    #     self.room_group_name = f"chat_{self.room_name}"
-
-    #     #Join room group
-    #     try:
-    #         await self.channel_layer.group_add(
-    #             # self.room_name,
-    #             self.room_group_name,
-    #             self.channel_name,
-    #         )
-    #         print("CONNECTED TO REDISS AND WEBSOCKET SERVER")
-    #         await self.accept()
-    #     except Exception as e:
-    #         print("Error",e)
-
     async def connect(self):
         self.user = None
         try:
@@ -53,15 +36,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
 
-    # async def disconnet(self):
-    #     print("DISCONNECTED TO REDISS AND WEBSOCKET SERVER")
-    #     #Leave room group
-    #     await self.channel_layer.group_discard(
-    #         self.room_name,
-    #         self.channel_name,
-    #     )
-
-    async def disconnet(self):
+    async def disconnect(self,close_code):
         if self.user.is_authenticated:
             await self.channel_layer.group_discard(
                 self.room_group_name,
@@ -70,6 +45,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):   
         text_data_json = json.loads(text_data)
+        type = text_data_json['type']
+
+        if type == "private_chat_message":
+            await self.handle_private_chat_message(text_data_json)
+            
+
+ #----- Functions ------------------------------------------------------------------------------------------------------       
+
+    async def handle_private_chat_message(self, text_data_json):
         message = text_data_json['message']
         user = text_data_json['user']
         recipientId =  int(text_data_json['recipientId'])
@@ -85,7 +69,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             f"chat_chat_room_{self.user.id}"            # send also to self, to reflect what u sent
         ]
 
-        
         #Save message to database
         await sync_to_async(Messages.objects.create)(
             sender=sender,
@@ -103,11 +86,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             for rec in recipients:
                 await self.channel_layer.group_send(
-                rec,                     # Edit Here to specify to what is the recipient's ID 
-                
+                rec,                                    # Edit Here to specify to what is the recipient's ID 
                 # self.room_group_name,
                 {
-                    'type':'chat_message',
+                    'type':'chat_message',              # calls the function chat_message()
                     'message':message,
                     'user':user,
                     'sender_fname':s_name,
@@ -115,32 +97,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
             print("MESSAGE RECEIVED")
- 
-
-            # await self.send(text_data=json.dumps({
-            # 'message':message
-            # }))
-            # print("Message sent")
         except Exception as e:
             print("Error:",e)
         
-
     async def chat_message(self,event):
         print("MESSAGE SENT")
-        message = event['message']
-        user = event['user']
-        recipient = event['recipient']
-        s_name = event['sender_fname']
-        # s_name = self.user.first_name
-        print("s_Id: ",s_name)
         #Send message to Websocket
-        await self.send(text_data=json.dumps({
-            'message':message,
-            'user':user,
-            'sender_fname':s_name,
-            'recipient':recipient
-        }))
-
-
-
-    
+        await self.send(text_data=json.dumps(event))
