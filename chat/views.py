@@ -56,7 +56,7 @@ def login(request):
     return Response({
         "refresh":str(refresh),
         "access":str(refresh.access_token),
-        "firstname":str(user.first_name),  
+        "fullName":str(f"{user.first_name} {user.last_name}"),
         "friendList":list(friends)   
   
     })
