@@ -49,7 +49,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         if type == "private_chat_message":
             await self.handle_private_chat_message(text_data_json)
-            
+        elif type == "active_status_indicator":
+            await self.handle_active_status_indicator(text_data_json)
+            print("Hello active status")
 
  #----- Functions ------------------------------------------------------------------------------------------------------       
 
@@ -104,3 +106,49 @@ class ChatConsumer(AsyncWebsocketConsumer):
         print("MESSAGE SENT")
         #Send message to Websocket
         await self.send(text_data=json.dumps(event))
+
+
+    async def handle_active_status_indicator(self, text_data_json):
+        users = await self.handle_active_status_sync(text_data_json)
+        await self.send_active_status(users['all_users'], users['active_users'])
+
+    @sync_to_async
+    def handle_active_status_sync(self, text_data_json):
+        try:
+            # Update is_active field in db when logging out
+            user = User.objects.get(id=text_data_json['user_id'])
+            print("is_active before update: ", user.is_active)
+            user.is_active = (text_data_json['status'] == "online")
+            user.save()
+            print("is_active after update: ", user.is_active)
+
+            id = int(text_data_json['user_id'])
+            all_users = User.objects.exclude(is_superuser=True)\
+                    .values('id', 'first_name', 'last_name', 'is_active')
+            active_users = all_users.filter(is_active=True)
+            
+            return {
+                "all_users": list(all_users),
+                "active_users": list(active_users),
+            }
+
+        except Exception as e:
+            print("Error in handling active status: ", e)
+            return []
+
+
+    async def send_active_status(self, all_users, active_users): 
+        for friend in active_users:
+            await self.channel_layer.group_send(
+                f"chat_chat_room_{friend['id']}",
+                {
+                    'type': 'active_status',       
+                    'usersList': all_users     
+                }
+            )
+    async def active_status(self,event):
+        #Send message to Websocket
+        await self.send(text_data=json.dumps(event))
+
+       
+    
