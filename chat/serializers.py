@@ -6,7 +6,7 @@ class MessageSerializer(serializers.ModelSerializer):
     sender_fname = serializers.CharField(source='sender.first_name',read_only=True)
     class Meta:
         model = Messages
-        fields = ["id", "message", "timestamp","recipient", "sender_fname"]
+        fields = ["id", "message", "timestamp","recipient", "sender_fname","sender"]
         
 
 class UserSerializer(serializers.ModelSerializer):

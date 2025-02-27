@@ -78,6 +78,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message=message,
         )
         r_id = recipient.id
+        s_id = sender.id
         r_name = recipient.first_name
         s_name=sender.first_name
         print(sender)
@@ -95,7 +96,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'message':message,
                     'user':user,
                     'sender_fname':s_name,
-                    'recipient':r_id
+                    'recipient':r_id,
+                    'sender':s_id
                 }
             )
             print("MESSAGE RECEIVED")
@@ -115,14 +117,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @sync_to_async
     def handle_active_status_sync(self, text_data_json):
         try:
-            # Update is_active field in db when logging out
+            # Update is_active field in db when logging out, "online" is already handled in login
             user = User.objects.get(id=text_data_json['user_id'])
             print("is_active before update: ", user.is_active)
-            user.is_active = (text_data_json['status'] == "online")
-            user.save()
+            if text_data_json['status'] == "offline":
+                user.is_active = (False)
+                user.save()
             print("is_active after update: ", user.is_active)
-
-            id = int(text_data_json['user_id'])
             all_users = User.objects.exclude(is_superuser=True)\
                     .values('id', 'first_name', 'last_name', 'is_active')
             active_users = all_users.filter(is_active=True)
