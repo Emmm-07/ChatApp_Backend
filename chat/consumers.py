@@ -80,7 +80,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         r_id = recipient.id
         s_id = sender.id
         r_name = recipient.first_name
-        s_name=sender.first_name
+        s_name=f"{sender.first_name} {sender.last_name}"
         print(sender)
         print(recipient)
         print(message)
