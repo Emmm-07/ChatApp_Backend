@@ -44,7 +44,12 @@ class MessageViewset(viewsets.ModelViewSet):
 
 @api_view(['POST'])
 def login(request):
-    user = get_object_or_404(User, username=request.data['username'])
+    # handle both username or email
+    input_user = request.data['username']
+    if "@" in input_user and ".com" in input_user:
+        user = get_object_or_404(User, email=input_user)
+    else:    
+        user = get_object_or_404(User, username=input_user)
     if not user.check_password(request.data['password']):
         return Response({"detail":"Not Found"},status=status.HTTP_404_NOT_FOUND)
     user.is_active = True
