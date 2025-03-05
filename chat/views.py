@@ -56,9 +56,9 @@ def login(request):
     user.save()
     refresh = RefreshToken.for_user(user)
 
- 
+    
     friends = User.objects.exclude(id=user.id).exclude(is_superuser=True).values('id','first_name','last_name', 'is_active')
-
+    
     # serialized_users = UserSerializer(users, many=True).data
 
     print("User ID: ",user.id)
