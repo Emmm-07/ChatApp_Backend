@@ -90,3 +90,12 @@ def signup (request):
         })
     
     return Response({'detail':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+def logout(request):
+    user = get_object_or_404(User, id=request.data['userId'])
+    user.is_active = False
+    user.save()
+    return Response({})
+    
+
